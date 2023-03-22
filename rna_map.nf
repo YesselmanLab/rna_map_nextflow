@@ -6,6 +6,10 @@ params.output_dir = "./demultiplexed_output"
 params.barcodes = "./barcodes.txt"
 params.barcode_csv = "$baseDir/data.csv"
 
+// need to make split fastq a job
+// need to run trim galore first
+// need to combine runs at the end
+
 process demultiplex_fastq {
     input:
         tuple val(filename), path(fastq_chunk_1), path(fastq_chunk_2)
@@ -58,6 +62,22 @@ process run_rna_map {
     """
 }
 
+process combine_output_final {
+    publishDir path: "${baseDir}/processed", mode:'copy', overwrite: true
+
+    input: 
+    tuple val(barcode), path(rna_map_dirs)
+
+    output:
+    path("*")
+
+    script:
+    """
+    python ${baseDir}/scripts/combine_output_final.py ${params.barcode_csv} ${barcode} ${rna_map_dirs}
+    """
+
+}
+
 workflow {
     split_fasta_ch = \
         channel.fromFilePairs("$baseDir/test_R{1,2}.fastq.gz", flat: true) | \
@@ -73,7 +93,12 @@ workflow {
         groupTuple(by: 0)
     joined_dirs = grouped_demultiplexed_ch | join_zip_files
     joined_dirs = joined_dirs.flatten()
-    //joined_dirs.view()
     rna_map_outputs_ch = joined_dirs | run_rna_map
-    
+    grouped_rna_outputs_ch = rna_map_outputs_ch.
+        map({file -> 
+            def key = file.name.toString().tokenize('-').get(1)
+            return tuple(key, file)
+        }).
+        groupTuple(by: 0)
+    grouped_rna_outputs_ch | combine_output_final
 }  

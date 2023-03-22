@@ -1,2 +1,8 @@
+# nextflow generated files
 work/
-*.nextflow
+processed/
+barcode_jsons/
+.nextflow*
+
+# ide generated files
+.vscode
