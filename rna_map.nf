@@ -1,18 +1,39 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
 
-params.input_dir = "./fastq_input"
-params.output_dir = "./demultiplexed_output"
-params.barcodes = "./barcodes.txt"
+params.fastq_dirs = []
 params.barcode_csv = "$baseDir/data.csv"
+params.split_chunks = 5
 
-// need to make split fastq a job
-// need to run trim galore first
-// need to combine runs at the end
+process split_fastqs {
+    input:
+        path(fastq_dir)
+
+    output:
+        file("*.fastq.gz")
+
+    script:
+    """
+    python $baseDir/scripts/split_fastqs.py $fastq_dir $params.split_chunks
+    """
+}
+
+process trim_galore {
+    input:
+        tuple file(r1_chunk), file(r2_chunk)
+
+    output:
+        tuple file("*R1*.fq.gz"), file("*R2*.fq.gz") 
+
+    script:
+    """
+    trim_galore --fastqc --paired $r1_chunk $r2_chunk
+    """
+}
 
 process demultiplex_fastq {
     input:
-        tuple val(filename), path(fastq_chunk_1), path(fastq_chunk_2)
+        tuple path(fastq_chunk_1), path(fastq_chunk_2)
 
     output:
         path "[ACGT]*"
@@ -79,11 +100,20 @@ process combine_output_final {
 }
 
 workflow {
-    split_fasta_ch = \
-        channel.fromFilePairs("$baseDir/test_R{1,2}.fastq.gz", flat: true) | \
-        splitFastq(by: 10_000, pe: true, file: true, compress: true)
-    barcode_file_ch = split_fasta_ch | demultiplex_fastq
+    // load fastq files from directories 
+    fastq_dir_ch = Channel.fromPath(params.fastq_dirs.tokenize(','))
+    // split fastq files into chunks
+    split_fastqs_ch = fastq_dir_ch | split_fastqs
+    split_fastqs_ch = split_fastqs_ch.flatten()
+    r1_ch = split_fastqs_ch.filter { it.toString().contains('R1') }
+    r2_ch = split_fastqs_ch.filter { it.toString().contains('R2') }
+    split_fastqs_ch = r1_ch.merge(r2_ch)
+    // run trim galore on each chunk
+    trim_fastqs_ch = split_fastqs_ch | trim_galore
+    // demultiplex each chunk with sabre 
+    barcode_file_ch = trim_fastqs_ch | demultiplex_fastq
     barcode_file_ch = barcode_file_ch.flatten()
+    // demultiplex each chunk with internal script
     int_demult_ch = barcode_file_ch | internal_demultiplex
     grouped_demultiplexed_ch = int_demult_ch.
         map({file -> 
@@ -91,9 +121,12 @@ workflow {
             return tuple(key, file)
         }).
         groupTuple(by: 0)
+    // join zip files 
     joined_dirs = grouped_demultiplexed_ch | join_zip_files
     joined_dirs = joined_dirs.flatten()
+    // run rna map on each construct individually
     rna_map_outputs_ch = joined_dirs | run_rna_map
+    // combine output files and generate final output
     grouped_rna_outputs_ch = rna_map_outputs_ch.
         map({file -> 
             def key = file.name.toString().tokenize('-').get(1)
