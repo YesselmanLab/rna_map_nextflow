@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import shutil
 import random
 import string
@@ -69,13 +71,16 @@ def main(csv, dir_path):
         raise ValueError("No barcode found in csv file")
     row = df_sub.iloc[0]
     unique_code = random_string(10)
-    data_path = f"/tmp/bc-path/{unique_code}"
+    # data_path = f"/tmp/bc-path/{unique_code}"
     data_path = "data"
+    # cmd = (
+    #    f"barcode_demultiplex -csv /inputs/rnas/{row['code']}.csv "
+    #    f"-fq1 {R2_path} -fq2 {R1_path} --data-path {data_path} {row['demult_args']}"
+    # )
     cmd = (
-        f"barcode_demultiplex -csv $SEQPATH/rna/{row['code']}.csv "
+        f"barcode_demultiplex -csv ../../../inputs/rnas/{row['code']}.csv "
         f"-fq1 {R2_path} -fq2 {R1_path} --data-path {data_path} {row['demult_args']}"
     )
-    print(cmd)
     subprocess.call(cmd, shell=True)
     # subprocess.call(
     #    f"zip -r {barcode_seq}_.{unique_code}.demultiplexed.zip {data_path}", shell=True

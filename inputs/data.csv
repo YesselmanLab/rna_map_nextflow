@@ -1,0 +1,4 @@
+run_name,exp_name,construct,code,length,barcode,barcode_seq,data_type,buffer,buffer_conc,mg_conc,exp_type,demult_args
+2023_01_23_mtt6_uucg_4_seq,2022_12_16_C0098_50mM_NaC_Mg_titra_CM,mtt6_mutations_set_1_uucg_50mM-NaC_1.5mM-Mg2+,C0098,300.0,RTB010,ATGCATGCACAG,DMS,NaCoc,50.0,1.5,mg_titration,--helix 2 0 8
+2023_01_23_mtt6_uucg_4_seq,2022_12_16_C0098_50mM_NaC_Mg_titra_CM,mtt6_mutations_set_1_uucg_50mM-NaC_1mM-Mg2+,C0098,300.0,RTB011,TAATGCAACTTC,DMS,NaCoc,50.0,1.0,mg_titration,--helix 2 0 8
+2023_01_23_mtt6_uucg_4_seq,2022_12_16_C0098_50mM_NaC_Mg_titra_CM,mtt6_mutations_set_1_uucg_50mM-NaC_0.75mM-Mg2+,C0098,300.0,RTB012,GCAAATGTGCTA,DMS,NaCoc,50.0,0.75,mg_titration,--helix 2 0 8

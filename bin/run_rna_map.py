@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import subprocess
 import click
 import os
@@ -23,10 +25,10 @@ def main(base_dir, fastq_dir):
     fastq_dir = Path(fastq_dir)
     full_barcode = fastq_dir.stem
     construct_barcode, seq_barcode = full_barcode.split("-")
-    df = pd.read_csv(f"{base_dir}/inputs/data.csv")
+    df = pd.read_csv(f"/inputs/data.csv")
     construct_row = df[df["barcode_seq"] == construct_barcode].iloc[0]
     construct_code = construct_row["code"]
-    df_barcodes = pd.read_json(f"{base_dir}/inputs/barcode_jsons/{construct_code}.json")
+    df_barcodes = pd.read_json(f"/inputs/barcode_jsons/{construct_code}.json")
     seq_row = df_barcodes[df_barcodes["full_barcode"] == seq_barcode].iloc[0]
     f = open("test.fasta", "w")
     f.write(f">{seq_row['name']}\n")

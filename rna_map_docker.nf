@@ -2,7 +2,7 @@
 nextflow.enable.dsl=2
 
 params.fastq_dirs = []
-params.barcode_csv = "$baseDir/inputs/data.csv"
+params.barcode_csv = "/inputs/data.csv"
 params.split_chunks = 2
 
 process split_fastqs {
@@ -14,7 +14,7 @@ process split_fastqs {
 
     script:
     """
-    python $baseDir/scripts/split_fastqs.py $fastq_dir $params.split_chunks
+    split_fastqs.py $fastq_dir $params.split_chunks
     """
 }
 
@@ -40,7 +40,7 @@ process demultiplex_fastq {
 
     script:
     """
-    python ${baseDir}/scripts/sabre_demultiplex.py ${params.barcode_csv} ${fastq_chunk_1} ${fastq_chunk_2}
+    sabre_demultiplex.py ${params.barcode_csv} ${fastq_chunk_1} ${fastq_chunk_2}
     """
 }
 
@@ -53,7 +53,7 @@ process internal_demultiplex {
     
     script:
     """
-    python ${baseDir}/scripts/internal_demultiplex.py ${params.barcode_csv} ${barcode_dir}
+    internal_demultiplex.py ${params.barcode_csv} ${barcode_dir}
     """
 }
 
@@ -66,7 +66,7 @@ process join_zip_files {
 
     script:
     """
-    python ${baseDir}/scripts/join_zip_files.py ${barcode} ${barcode_path}
+    join_zip_files.py ${barcode} ${barcode_path}
     """
 }
 
@@ -79,7 +79,7 @@ process run_rna_map {
 
     script:
     """
-    python ${baseDir}/scripts/run_rna_map.py ${baseDir} ${barcode_dir}
+    run_rna_map.py ${baseDir} ${barcode_dir}
     """
 }
 
@@ -94,7 +94,7 @@ process combine_output_final {
 
     script:
     """
-    python ${baseDir}/scripts/combine_output_final.py ${params.barcode_csv} ${barcode} ${rna_map_dirs}
+    combine_output_final.py ${params.barcode_csv} ${barcode} ${rna_map_dirs}
     """
 
 }

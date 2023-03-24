@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import click
 import pandas as pd
 import subprocess
@@ -53,27 +55,6 @@ def main(csv, r1_path, r2_path):
         f"-u NC/test_S1_L001_R1_001.fastq -w NC/test_S1_L001_R2_001.fastq"
     )
     subprocess.call(cmd, shell=True)
-    for _, row in df.iterrows():
-        f = open(f"{row['barcode_seq']}/test_S1_L001_R1_001.fastq", "r")
-        lines = f.readlines()
-        f.close()
-        f = open(f"{row['barcode_seq']}/test_S1_L001_R1_001.fastq", "w")
-        for l in lines:
-            if l.startswith("+"):
-                f.write("+\n")
-            else:
-                f.write(l)
-        f.close()
-        f = open(f"{row['barcode_seq']}/test_S1_L001_R2_001.fastq", "r")
-        lines = f.readlines()
-        f.close()
-        f = open(f"{row['barcode_seq']}/test_S1_L001_R2_001.fastq", "w")
-        for l in lines:
-            if l.startswith("+"):
-                f.write("+\n")
-            else:
-                f.write(l)
-        f.close()
     shutil.rmtree("NC")
     for _, row in df.iterrows():
         gzip_files(row["barcode_seq"])
