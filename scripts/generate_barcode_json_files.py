@@ -23,7 +23,7 @@ def main(csv):
             if args[i] == "--helix" or args[i] == "-helix":
                 helices.append([int(args[i + 1]), int(args[i + 2]), int(args[i + 3])])
         df_barcodes = find_helix_barcodes(df_seq, helices)
-        df_barcodes.to_json(f"barcode_jsons/{row['code']}.json", orient="records")
+        df_barcodes.to_json(f"inputs/barcode_jsons/{row['code']}.json", orient="records")
 
 
 # pylint: disable=no-value-for-parameter

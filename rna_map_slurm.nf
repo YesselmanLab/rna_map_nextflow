@@ -3,7 +3,7 @@ nextflow.enable.dsl=2
 
 params.fastq_dirs = []
 params.barcode_csv = "$baseDir/inputs/data.csv"
-params.split_chunks = 2
+params.split_chunks = 200
 
 process split_fastqs {
     input:
@@ -71,7 +71,7 @@ process join_zip_files {
     script:
     """
     source $baseDir/setup_env
-    python ${baseDir}/scripts/join_zip_files.py ${barcode} ${barcode_path}
+    python ${baseDir}/scripts/join_zip_files_multi.py ${barcode} ${barcode_path}
     """
 }
 
