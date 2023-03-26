@@ -1,0 +1,4 @@
+fastq_dirs: ''
+data_csv: ''
+split_fastqs : false
+split_chunks: 2

@@ -6,3 +6,6 @@ barcode_jsons/
 
 # ide generated files
 .vscode
+
+# mac 
+.DS_Store
