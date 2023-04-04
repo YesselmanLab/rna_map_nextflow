@@ -83,7 +83,7 @@ process run_rna_map {
 }
 
 process combine_output_final {
-    publishDir path: "${baseDir}/processed", mode:'copy', overwrite: true
+    publishDir path: "${launchDir}/processed", mode:'copy', overwrite: true
 
     input: 
     tuple val(barcode), path(rna_map_dirs)
@@ -93,7 +93,7 @@ process combine_output_final {
 
     script:
     """
-    rna-map combine-rna-map-outputs $barcode $params.input_dir $rna_map_dirs
+    rna-map-nextflow combine-rna-map-outputs $barcode $params.input_dir $rna_map_dirs
     """
 
 }

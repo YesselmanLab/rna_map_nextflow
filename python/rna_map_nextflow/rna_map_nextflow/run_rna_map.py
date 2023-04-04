@@ -64,7 +64,7 @@ def run_rna_map(input_dir, fastq_dir):
 
 def keep_file(file_path):
     _, extension = os.path.splitext(file_path)
-    return extension in {".html", ".txt", ".png"}
+    return extension in {".html", ".txt"}
 
 
 def combine_outputs(barcode, input_dir, result_dirs):
