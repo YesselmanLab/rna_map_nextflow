@@ -12,14 +12,14 @@ process split_fastqs {
 
     script:
     """
-    rna-map-tools split-fastqs $r1_path $r2_path $params.split_fastq_chunks
+    rna-map-nextflow split-fastqs $r1_path $r2_path $params.split_fastq_chunks
     """
 }
 
 
 process trim_galore {
     input:
-        tuple file(r1_chunk), file(r2_chunk)
+        tuple val(name), path(r1_chunk), path(r2_chunk)
 
     output:
         tuple file("*R1*.fq.gz"), file("*R2*.fq.gz") 
@@ -39,7 +39,7 @@ process demultiplex_fastq {
 
     script:
     """
-    rna-map-tools demultiplex ${params.data_csv} $fastq_chunk_1 $fastq_chunk_2
+    rna-map-nextflow demultiplex $params.data_csv $fastq_chunk_1 $fastq_chunk_2
     """
 }
 
@@ -52,7 +52,7 @@ process internal_demultiplex {
     
     script:
     """
-    python ${baseDir}/scripts/internal_demultiplex.py ${params.barcode_csv} ${barcode_dir}
+    rna-map-nextflow int-demultiplex $params.input_dir $barcode_dir
     """
 }
 
@@ -65,7 +65,7 @@ process join_zip_files {
 
     script:
     """
-    python ${baseDir}/scripts/join_zip_files.py ${barcode} ${barcode_path}
+    rna-map-nextflow join-int-demultiplex-zips --threads $task.cpus $barcode $barcode_path 
     """
 }
 
@@ -78,7 +78,7 @@ process run_rna_map {
 
     script:
     """
-    python ${baseDir}/scripts/run_rna_map.py ${baseDir} ${barcode_dir}
+    rna-map-nextflow run-rna-map $params.input_dir $barcode_dir
     """
 }
 
@@ -108,12 +108,10 @@ workflow {
         println("No data csv specified")
         exit 1
     }
+    // TODO would be nice to check to make sure there are actually fastqs? 
     l = params.fastq_dirs.tokenize(',')
     l = l.collect{ it + "/*{1,2}.fastq.gz" }
     fastq_dir_ch = Channel.fromFilePairs(l, flat: true)
-    //fastq_dir_ch = fastq_dir_ch.map { it -> it + "/*.fastq.gz" }
-    //fastq_dir_ch = Channel.fromFilePairs(fastq_dir_ch, flat: true)
-    //fastq_dir_ch.view()
     // load fastq files from directories 
     // should we split? 
     if (params.split_fastqs) {
@@ -122,17 +120,10 @@ workflow {
         fastq_dir_ch = fastq_dir_ch.flatten()
         fastq_dir_ch = fastq_dir_ch.map{ it-> tuple(it.toString().tokenize("_")[3], it)}
         fastq_dir_ch = fastq_dir_ch.groupTuple(by: 0)
-        fastq_dir_ch.view()
+        fastq_dir_ch = fastq_dir_ch.map{ it-> tuple(it[0], it[1][0], it[1][1])}
+    }   
 
-    }
-    /*else {
-        println("made it")
-        fastq_dir_ch = Channel.fromFilePairs('fastqs/*.fastq.gz', flat: true)
-        fastq_dir_ch.view()
-    }*/   
-    /*
     // run trim galore on each chunk
-    fastq_dir_ch.view()
     trim_fastqs_ch = fastq_dir_ch | trim_galore
     // demultiplex each chunk with sabre 
     barcode_file_ch = trim_fastqs_ch | demultiplex_fastq
@@ -158,5 +149,4 @@ workflow {
         }).
         groupTuple(by: 0)
     grouped_rna_outputs_ch | combine_output_final
-    */
 }  

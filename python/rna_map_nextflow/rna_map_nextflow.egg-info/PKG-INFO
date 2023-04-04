@@ -1,0 +1,33 @@
+Metadata-Version: 2.1
+Name: rna-map-nextflow
+Version: 0.1.0
+Summary: a set of tools for organizing more complex analysis and processing of rna map data
+Home-page: https://github.com/jyesselm/rna_map_nextflow
+Author: Joe Yesselman
+Author-email: jyesselm@unl.edu
+Keywords: rna_map_nextflow
+Classifier: Intended Audience :: Developers
+Classifier: Natural Language :: English
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: Implementation :: PyPy
+Description-Content-Type: test/markdown
+
+# rna_map_tools
+
+[![PYPI status]( https://badge.fury.io/py/rna_map_tools.png)](http://badge.fury.io/py/rna_map_tools)[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
+a set of tools for organizing more complex analysis and processing of rna map data
+
+## Install
+
+To install rna_map_tools 
+
+```shell
+python -m pip install git+https://github.com/jyesselm/rna_map_tools
+```
+
+
+#Features
+
+## TODO
+# rna_map_tools

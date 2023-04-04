@@ -1,0 +1,2 @@
+[console_scripts]
+rna-map-nextflow = rna_map_nextflow.cli:cli

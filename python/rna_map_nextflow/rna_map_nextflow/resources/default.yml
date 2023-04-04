@@ -1,0 +1,13 @@
+
+debug: False
+run-rna-map-in-docker: False
+# options for specific protocols
+download:
+  rename_dir: True
+  dir_name: download
+demultiplex:
+  type: novobarcode
+  backup_fastqs: False
+  delete_fastqs: True
+  delete_non_barcoded: True
+runmulti:

@@ -1,0 +1,2 @@
+rna_map_nextflow
+rna_map_nextflow/cli

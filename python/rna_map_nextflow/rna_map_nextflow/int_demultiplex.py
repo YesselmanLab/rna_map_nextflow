@@ -1,15 +1,44 @@
-import shutil
-import zipfile
-import re
 import glob
-import gzip
-import subprocess
 import os
-import click
+import gzip
+import zipfile
 import pandas as pd
+import shutil
+import subprocess
 from pathlib import Path
 from collections import defaultdict
 from concurrent.futures import ProcessPoolExecutor
+
+from barcode_demultiplex.demultiplex import demultiplex
+
+from rna_map_nextflow.util import random_string, flatten_directory
+
+
+def run_int_demultiplex(input_dir, fastq_dir):
+    df = pd.read_csv(f"{input_dir}/data.csv")
+    fastq1_path = glob.glob(os.path.join(fastq_dir, "*R1*.fastq.gz"))[0]
+    fastq2_path = glob.glob(os.path.join(fastq_dir, "*R2*.fastq.gz"))[0]
+    barcode_seq = Path(fastq_dir).stem
+    df_sub = df.loc[df["barcode_seq"] == barcode_seq]
+    if df_sub.empty:
+        raise ValueError("No barcode found in csv file")
+    row = df_sub.iloc[0]
+    # get helices from commandline
+    helices = []
+    args = row["demult_args"].split()
+    for i in range(0, len(args)):
+        if args[i] == "--helix" or args[i] == "-helix":
+            helices.append([int(args[i + 1]), int(args[i + 2]), int(args[i + 3])])
+    unique_code = random_string(10)
+    data_path = f"/tmp/bc-path/{unique_code}"
+    df_seq = pd.read_csv(f"{input_dir}/rnas/{row['code']}.csv")
+    demultiplex(df_seq, Path(fastq2_path), Path(fastq1_path), helices, data_path)
+    flatten_directory(data_path, f"{barcode_seq}_.{unique_code}.demultiplexed.zip")
+    shutil.rmtree(data_path)
+
+
+# join zip results ##############################################################
+
 
 def group_fastq_files(fastq_files):
     grouped_files = defaultdict(lambda: [None, None])
@@ -51,13 +80,7 @@ def process_pair(name_pair, barcode, zip_files, outdir):
     subprocess.call(f"rm -r */{pair[1]}", shell=True)
 
 
-@click.command()
-@click.argument("barcode", type=str)
-@click.argument("zip_files", nargs=-1, type=click.Path(exists=True))
-def main(barcode, zip_files):
-    """
-    main function for script
-    """
+def join_int_demult_files(barcode, zip_files, threads=1):
     files = []
     for zip_file in zip_files:
         with zipfile.ZipFile(zip_file, "r") as zip_ref:
@@ -67,15 +90,17 @@ def main(barcode, zip_files):
     pairs = group_fastq_files(files)
     outdir = f"output"
     os.makedirs(outdir, exist_ok=True)
-    
-    with ProcessPoolExecutor(max_workers=16) as executor:
-        executor.map(process_pair, pairs.items(), [barcode]*len(pairs), [zip_files]*len(pairs), [outdir]*len(pairs))
+
+    with ProcessPoolExecutor(max_workers=threads) as executor:
+        executor.map(
+            process_pair,
+            pairs.items(),
+            [barcode] * len(pairs),
+            [zip_files] * len(pairs),
+            [outdir] * len(pairs),
+        )
 
     count = 0
     for zip_file in zip_files:
         shutil.rmtree(f"{count}")
         count += 1
-
-
-if __name__ == "__main__":
-    main()
