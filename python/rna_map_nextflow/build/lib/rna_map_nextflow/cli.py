@@ -10,6 +10,7 @@ from rna_map_nextflow.fastq import PairedFastqFiles, FastqFile
 from rna_map_nextflow.demultiplex import run_demultiplex
 from rna_map_nextflow.int_demultiplex import run_int_demultiplex, join_int_demult_files
 from rna_map_nextflow.run_rna_map import run_rna_map as rna_map
+from rna_map_nextflow.run_rna_map import combine_outputs
 
 log = get_logger("CLI")
 
@@ -36,6 +37,15 @@ def demultiplex(csv, r1_path, r2_path, dtype, output_dir, debug):
     paired_fastqs = PairedFastqFiles(FastqFile(r1_path), FastqFile(r2_path))
     df = pd.read_csv(csv)
     run_demultiplex(df, paired_fastqs, dtype, output_dir)
+
+
+@cli.command()
+@click.argument("barcode", type=str)
+@click.argument("input_dir", type=click.Path(exists=True))
+@click.argument("result_dirs", nargs=-1, type=click.Path(exists=True))
+def combine_rna_map_outputs(barcode, input_dir, result_dirs):
+    setup_applevel_logger()
+    combine_outputs(barcode, input_dir, result_dirs)
 
 
 @cli.command()

@@ -67,7 +67,7 @@ def keep_file(file_path):
     return extension in {".html", ".txt", ".png"}
 
 
-def combine_rna_map_outputs(input_dir, barcode, result_dirs):
+def combine_outputs(barcode, input_dir, result_dirs):
     """
     combines all of the mutation histogram files into one file
     """

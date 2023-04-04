@@ -93,7 +93,7 @@ process combine_output_final {
 
     script:
     """
-    python ${baseDir}/scripts/combine_output_final.py ${params.barcode_csv} ${barcode} ${rna_map_dirs}
+    rna-map combine-rna-map-outputs $barcode $params.input_dir $rna_map_dirs
     """
 
 }

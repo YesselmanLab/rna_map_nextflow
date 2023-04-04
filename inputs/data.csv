@@ -1,7 +1,0 @@
-run_name,exp_name,construct,code,length,barcode,barcode_seq,data_type,buffer,buffer_conc,mg_conc,exp_type,demult_args
-2022_05_25_rnamake_lib_KU_seq,2022_05_17_C009Q-R_spike_in_CM_KN,rnamake_motif_2_2bc-DMS,C009Q,284.0,RTB001,GAGGCCTTGGCC,DMS,NaCoc,264.0,10.0,norm,--helix 2 0 8
-2022_05_25_rnamake_lib_KU_seq,2022_05_17_C009Q-R_spike_in_CM_KN,rnamake_motif_3_2bc-DMS,C009R,288.0,RTB002,CTTTAAAATATA,DMS,NaCoc,264.0,10.0,norm,--helix 2 0 8
-2022_05_25_rnamake_lib_KU_seq,2022_05_17_C009Q-R_spike_in_CM_KN,rnamake_motif_2_2bc-NOMOD,C009Q,284.0,RTB003,TGACTTGCACAT,NOMOD,NaCoc,264.0,10.0,norm,--helix 2 0 8
-2022_05_25_rnamake_lib_KU_seq,2022_05_17_C009Q-R_spike_in_CM_KN,rnamake_motif_3_2bc-NOMOD,C009R,288.0,RTB004,TGCGCCATTGCT,NOMOD,NaCoc,264.0,10.0,norm,--helix 2 0 8
-2022_05_25_rnamake_lib_KU_seq,2022_05_23_C009S-9T_spikein_CM_BL,rnamake_motif_4_1bc,C009S,279.0,RTB010,ATGCATGCACAG,DMS,NaCoc,264.0,10.0,norm,--helix 1 0 8
-2022_05_25_rnamake_lib_KU_seq,2022_05_23_C009S-9T_spikein_CM_BL,rnamake_motif_5_1bc,C009T,285.0,RTB011,TAATGCAACTTC,DMS,NaCoc,264.0,10.0,norm,--helix 1 0 8
