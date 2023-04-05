@@ -1,2 +1,0 @@
-rna_map @ git+https://github.com/YesselmanLab/rna_map@main
-barcode_demultiplex @ git+https://github.com/jyesselm/barcode_demultiplex.git

@@ -58,14 +58,8 @@ RUN curl -fsSL https://github.com/FelixKrueger/TrimGalore/archive/0.6.6.tar.gz -
     rm -rf TrimGalore-0.6.6 trim_galore.tar.gz
 
 
-
-#RUN /bin/bash -c "mkdir -p /bin/rna_map"
-#COPY . /bin/rna_map
-#RUN /bin/bash -c "cd /bin/rna_map && python setup.py install"
-#RUN /bin/bash -c "cd /bin/rna_map && pytest -m quick"
-
-COPY requirements.txt . 
-RUN pip install -r requirements.txt
-COPY bin/* /bin/
+COPY python/rna_map_nextflow /bin/rna_map_nextflow 
+RUN cd /bin/rna_map_nextflow && \
+    pip install . 
 
 WORKDIR /data

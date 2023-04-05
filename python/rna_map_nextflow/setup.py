@@ -35,7 +35,7 @@ setup(
     package_dir={"rna_map_nextflow": "rna_map_nextflow"},
     py_modules=["rna_map_nextflow/cli"],
     include_package_data=True,
-    # install_requires=requirements,
+    install_requires=requirements,
     zip_safe=False,
     keywords="rna_map_nextflow",
     classifiers=[
