@@ -26,7 +26,7 @@ process trim_galore {
 
     script:
     """
-    trim_galore --fastqc --quality 0 --paired $r1_chunk $r2_chunk
+    trim_galore --fastqc --quality 24 --length 60 --paired $r1_chunk $r2_chunk
     """
 }
 
@@ -118,11 +118,10 @@ workflow {
         // spit fastqs into chunks
         fastq_dir_ch = fastq_dir_ch | split_fastqs
         fastq_dir_ch = fastq_dir_ch.flatten()
-        fastq_dir_ch = fastq_dir_ch.map{ it-> tuple(it.toString().tokenize("_")[3], it)}
+        fastq_dir_ch = fastq_dir_ch.map{ it-> tuple(it.toString().tokenize("_")[-2], it)}
         fastq_dir_ch = fastq_dir_ch.groupTuple(by: 0)
         fastq_dir_ch = fastq_dir_ch.map{ it-> tuple(it[0], it[1][0], it[1][1])}
     }   
-
     // run trim galore on each chunk
     trim_fastqs_ch = fastq_dir_ch | trim_galore
     // demultiplex each chunk with sabre 
