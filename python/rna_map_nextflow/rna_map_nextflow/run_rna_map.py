@@ -27,6 +27,11 @@ def write_dotbracket_file(row):
     f.close()
 
 
+def get_file_size(file_path):
+    file_path = os.path.realpath(file_path)
+    return os.path.getsize(file_path)
+
+
 def run_rna_map(input_dir, fastq_dir):
     """
     main function for script
@@ -43,6 +48,13 @@ def run_rna_map(input_dir, fastq_dir):
     write_dotbracket_file(seq_row)
     mate_1_path = glob.glob(f"{fastq_dir}/*_mate1.fastq.gz")[0]
     mate_2_path = glob.glob(f"{fastq_dir}/*_mate2.fastq.gz")[0]
+    fsize_1 = get_file_size(mate_1_path)
+    fsize_2 = get_file_size(mate_2_path)
+    rand_str = random_string(10)
+    if fsize_1 < 100 or fsize_2 < 100:
+        print(f"skipping {fastq_dir} because file size is too small")
+        os.mkdir(f"output-{construct_barcode}-{rand_str}")
+        return
     # run rna_map pipeline
     setup_applevel_logger()
     rna_map.run.run(
@@ -57,7 +69,6 @@ def run_rna_map(input_dir, fastq_dir):
     shutil.rmtree("input")
     shutil.rmtree("output/Mapping_Files")
     # move to unique directory name to avoid collisions in nextflow
-    rand_str = random_string(10)
     shutil.move("output/BitVector_Files", f"output-{construct_barcode}-{rand_str}")
     shutil.rmtree("output")
 
