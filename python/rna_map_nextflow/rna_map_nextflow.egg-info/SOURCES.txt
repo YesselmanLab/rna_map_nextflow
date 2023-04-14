@@ -15,4 +15,5 @@ rna_map_nextflow.egg-info/SOURCES.txt
 rna_map_nextflow.egg-info/dependency_links.txt
 rna_map_nextflow.egg-info/entry_points.txt
 rna_map_nextflow.egg-info/not-zip-safe
+rna_map_nextflow.egg-info/requires.txt
 rna_map_nextflow.egg-info/top_level.txt
