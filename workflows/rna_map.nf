@@ -71,14 +71,16 @@ process join_zip_files {
 
 process run_rna_map {
     input:
-    path(barcode_dir)
+    path(barcode_dirs)
     
     output:
     path("output-*")
 
     script:
     """
-    rna-map-nextflow run-rna-map $params.input_dir $barcode_dir
+    for barcode_dir in $barcode_dirs; do
+        rna-map-nextflow run-rna-map $params.input_dir \$barcode_dir
+    done 
     """
 }
 
@@ -138,8 +140,10 @@ workflow {
     // join zip files 
     joined_dirs = grouped_demultiplexed_ch | join_zip_files
     joined_dirs = joined_dirs.flatten()
+    joined_dirs = joined_dirs.collate(4, false)
     // run rna map on each construct individually
     rna_map_outputs_ch = joined_dirs | run_rna_map
+    rna_map_outputs_ch = rna_map_outputs_ch.flatten()
     // combine output files and generate final output
     grouped_rna_outputs_ch = rna_map_outputs_ch.
         map({file -> 
