@@ -51,32 +51,39 @@ def combine_rna_map_outputs(barcode, input_dir, result_dirs):
 @cli.command()
 @click.argument("input_dir", type=click.Path(exists=True))
 @click.argument("fastq_dir", type=click.Path(exists=True))
-def int_demultiplex(input_dir, fastq_dir):
+@click.option("-o", "--output-dir", type=click.Path(exists=True), default=None)
+def int_demultiplex(input_dir, fastq_dir, output_dir):
     """
     uses barcode_demultiplex to demultiplex based on internal helices
     """
     setup_applevel_logger()
-    run_int_demultiplex(input_dir, fastq_dir)
+    run_int_demultiplex(input_dir, fastq_dir, output_dir)
 
 
 @cli.command()
 @click.argument("input_dir", type=click.Path(exists=True))
 @click.argument("fastq_dir", type=click.Path(exists=True))
-def run_rna_map(input_dir, fastq_dir):
+@click.option("-o", "--output-dir", type=click.Path(exists=True), default=None)
+def run_rna_map(input_dir, fastq_dir, output_dir):
     setup_applevel_logger()
-    rna_map(input_dir, fastq_dir)
+    if output_dir is None:
+        output_dir = os.getcwd()
+    rna_map(input_dir, fastq_dir, output_dir)
 
 
 @cli.command()
 @click.argument("barcode", type=str)
 @click.argument("zip_files", nargs=-1, type=click.Path(exists=True))
 @click.option("--threads", type=int, default=1)
-def join_int_demultiplex_zips(barcode, zip_files, threads):
+@click.option("-o", "--output-dir", type=click.Path(exists=True), default=None)
+def join_int_demultiplex_zips(barcode, zip_files, threads, output_dir):
     """
     joins int_demultiplex result zip files together
     """
     setup_applevel_logger()
-    join_int_demult_files(barcode, zip_files, threads)
+    if output_dir is None:
+        output_dir = os.getcwd()
+    join_int_demult_files(barcode, zip_files, threads, output_dir)
 
 
 @cli.command()

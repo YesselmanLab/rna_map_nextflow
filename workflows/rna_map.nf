@@ -1,8 +1,6 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
 
-// TODO make sure num of chunks is read into a program somewhere
-
 process split_fastqs {
     input:
         tuple val(name), path(r1_path), path(r2_path)
@@ -17,6 +15,8 @@ process split_fastqs {
 }
 
 
+// runs trim galore in a temporary directory and moves the outputed fastq files to the current directory
+// this is to reduce the number of files created in $WORK on the cluster
 process trim_galore {
     input:
         tuple val(name), path(r1_chunk), path(r2_chunk)
@@ -26,7 +26,13 @@ process trim_galore {
 
     script:
     """
-    trim_galore --fastqc --quality 24 --length 60 --paired $r1_chunk $r2_chunk
+    random_string=\$(cat /dev/urandom | env LC_ALL=C tr -dc 'A-Za-z0-9' | head -c 10)
+    outdir="$params.tmp_dir/\$random_string"
+    mkdir -p \$outdir
+    trim_galore --fastqc --quality 24 --length 60 --paired -o \$outdir  $r1_chunk $r2_chunk 
+    mv \${outdir}/*R1*.fq.gz .
+    mv \${outdir}/*R2*.fq.gz .
+    rm -rf \$outdir
     """
 }
 
@@ -52,7 +58,7 @@ process internal_demultiplex {
     
     script:
     """
-    rna-map-nextflow int-demultiplex $params.input_dir $barcode_dir
+    rna-map-nextflow int-demultiplex $params.input_dir $barcode_dir -o $params.tmp_dir
     """
 }
 
@@ -65,7 +71,7 @@ process join_zip_files {
 
     script:
     """
-    rna-map-nextflow join-int-demultiplex-zips --threads $task.cpus $barcode $barcode_path 
+    rna-map-nextflow join-int-demultiplex-zips --threads $task.cpus $barcode $barcode_path -o $params.tmp_dir
     """
 }
 
@@ -79,7 +85,7 @@ process run_rna_map {
     script:
     """
     for barcode_dir in $barcode_dirs; do
-        rna-map-nextflow run-rna-map $params.input_dir \$barcode_dir
+        rna-map-nextflow run-rna-map $params.input_dir \$barcode_dir -o $params.tmp_dir
     done 
     """
 }

@@ -32,10 +32,12 @@ def get_file_size(file_path):
     return os.path.getsize(file_path)
 
 
-def run_rna_map(input_dir, fastq_dir):
+def run_rna_map(input_dir, fastq_dir, output_dir=None):
     """
     main function for script
     """
+    if output_dir is None:
+        output_dir = os.getcwd()
     df = pd.read_csv(f"{input_dir}/data.csv")
     # parse barcode information in directory name
     # in the format of construct_barcode-seq_barcode
@@ -55,22 +57,23 @@ def run_rna_map(input_dir, fastq_dir):
         print(f"skipping {fastq_dir} because file size is too small")
         os.mkdir(f"output-{construct_barcode}-{rand_str}")
         return
+    os.makedirs(f"{output_dir}/{rand_str}", exist_ok=True)
+    params = get_preset_params("barcoded-library")
+    params["dirs"]["log"] = f"{output_dir}/{rand_str}/log"
+    params["dirs"]["input"] = f"{output_dir}/{rand_str}/input"
+    params["dirs"]["output"] = f"{output_dir}/{rand_str}/output"
     # run rna_map pipeline
     setup_applevel_logger()
-    rna_map.run.run(
-        "test.fasta",
-        mate_1_path,
-        mate_2_path,
-        "test.csv",
-        get_preset_params("barcoded-library"),
-    )
+    rna_map.run.run("test.fasta", mate_1_path, mate_2_path, "test.csv", params)
     # clean up unncessary files
-    shutil.rmtree("log")
-    shutil.rmtree("input")
-    shutil.rmtree("output/Mapping_Files")
+    shutil.rmtree(f"{output_dir}/{rand_str}/log")
+    shutil.rmtree(f"{output_dir}/{rand_str}/input")
     # move to unique directory name to avoid collisions in nextflow
-    shutil.move("output/BitVector_Files", f"output-{construct_barcode}-{rand_str}")
-    shutil.rmtree("output")
+    shutil.move(
+        f"{output_dir}/{rand_str}/output/BitVector_Files",
+        f"output-{construct_barcode}-{rand_str}",
+    )
+    shutil.rmtree(f"{output_dir}/{rand_str}")
 
 
 def keep_file(file_path):
