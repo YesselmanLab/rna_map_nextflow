@@ -118,7 +118,7 @@ workflow {
     }
     // TODO would be nice to check to make sure there are actually fastqs? 
     l = params.fastq_dirs.tokenize(',')
-    l = l.collect{ it + "/*{1,2}.fastq.gz" }
+    l = l.collect{ it + "/*R{1,2}*.fastq.gz" }
     fastq_dir_ch = Channel.fromFilePairs(l, flat: true)
     // load fastq files from directories 
     // should we split? 
